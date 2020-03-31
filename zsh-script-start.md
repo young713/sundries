@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 ## macOS 에서 zsh로 terminal 적용하기
 
 ### iTerm2 [다운로드](https://www.iterm2.com/downloads.html)
