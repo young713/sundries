@@ -53,13 +53,18 @@ services:
         letsencrypt['enable'] = false
         # Configure headers for outgoing email.
         gitlab_rails['gitlab_email_enabled'] = true
-        gitlab_rails['gitlab_email_from'] = 'no-reply@${GITLAB_DOMAIN}'
+        gitlab_rails['gitlab_email_from'] = 'gitlab@refine.co.kr'
         gitlab_rails['gitlab_email_display_name'] = 'GitLab'
-        gitlab_rails['gitlab_email_reply_to'] = 'no-reply@${GITLAB_DOMAIN}'
+        gitlab_rails['gitlab_email_reply_to'] = 'gitlab@refine.co.kr'
         # Send outgoing email via the SMTP container:
         gitlab_rails['smtp_enable'] = true
-        gitlab_rails['smtp_address'] = "mail"
+        gitlab_rails['smtp_address'] = "mail.refine.co.kr"
         gitlab_rails['smtp_port'] = 25
+        gitlab_rails['smtp_user_name'] = "gitlab@refine.co.kr"
+        gitlab_rails['smtp_password'] = "Refine$710"
+        gitlab_rails['smtp_domain'] = "refine.co.kr"
+        gitlab_rails['smtp_authentication'] = "login"
+        gitlab_rails['smtp_enable_starttls_auto'] = true
         gitlab_rails['smtp_tls'] = false
         # Limit backup lifetime to 7 days (604800 seconds):
         gitlab_rails['backup_keep_time'] = 604800
