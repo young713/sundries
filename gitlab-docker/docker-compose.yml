@@ -1,0 +1,65 @@
+version: '3'
+# See https://docs.docker.com/compose/overview/ for more information.
+
+# If you make changes to this file or any related files, apply them by
+# navigating to the directory that holds this file and run this as root:
+#   docker-compose down; docker-compose up -d
+
+# Create a network for our containers.
+networks:
+  frontend:
+  
+# Create persistent Docker volumes to preserve important data.
+# We don't want our data to be lost when restarting containers.
+volumes:
+  # For storing GitLab's configuration files:
+  vol-gitlab-config: "/refine/service/gitlab/config"
+  # For storing GitLab's logs:
+  vol-gitlab-logs: "/refine/service/gitlab/logs"
+  # For storing GitLab's application data:
+  vol-gitlab-data: "/refine/service/gitlab/data"
+  # For storing GitLab's backup data:
+  vol-gitlab-backups: "/refine/service/gitlab/backups"
+  
+# Create our containers.
+services:
+  # The main front-end application.
+  gitlab:
+    # To stick to a specific version, replace "latest" with a tag from:
+    # https://hub.docker.com/r/gitlab/gitlab-ce/tags/
+    image: 'gitlab/gitlab-ce:latest'
+    restart: always
+    hostname: 'gitlab.refinedev.io'
+    container_name: gitlab
+    ports:
+      - '80:80'
+      - '443:443'
+      - '22:22'
+      - '5005:5005'
+    networks:
+      - frontend
+    volumes:
+      # Ensure GitLab content persist between restarts.
+      - vol-gitlab-config:/etc/gitlab
+      - vol-gitlab-logs:/var/log/gitlab
+      - vol-gitlab-data:/var/opt/gitlab
+      - vol-gitlab-backups:/var/opt/gitlab/backups
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add gitlab.rb configuration here, each on its own line.
+        # See: https://gitlab.com/gitlab-org/omnibus-gitlab/blob/master/files/gitlab-config-template/gitlab.rb.template
+        external_url 'http://gitlab.refinedev.io'
+        registry_external_url 'http://gitlab.refinedev.io:5005'
+        letsencrypt['enable'] = false
+        # Configure headers for outgoing email.
+        gitlab_rails['gitlab_email_enabled'] = true
+        gitlab_rails['gitlab_email_from'] = 'no-reply@${GITLAB_DOMAIN}'
+        gitlab_rails['gitlab_email_display_name'] = 'GitLab'
+        gitlab_rails['gitlab_email_reply_to'] = 'no-reply@${GITLAB_DOMAIN}'
+        # Send outgoing email via the SMTP container:
+        gitlab_rails['smtp_enable'] = true
+        gitlab_rails['smtp_address'] = "mail"
+        gitlab_rails['smtp_port'] = 25
+        gitlab_rails['smtp_tls'] = false
+        # Limit backup lifetime to 7 days (604800 seconds):
+        gitlab_rails['backup_keep_time'] = 604800
