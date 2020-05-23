@@ -1,3 +1,10 @@
+docker install
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html
+
+docker-compose install
+https://gist.github.com/npearce/6f3c7826c7499587f00957fee62f8ee9
+
+gitlab docker-compose.yml
 ```
 web:
   image: 'gitlab/gitlab-ce:latest'
