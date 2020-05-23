@@ -1,3 +1,4 @@
+```
 web:
   image: 'gitlab/gitlab-ce:latest'
   restart: always
@@ -18,3 +19,4 @@ web:
     - '/home/young713/gitlab/logs:/var/log/gitlab'
     - '/home/young713/gitlab/data:/var/opt/gitlab'
     - '/home/young713/gitlab/backups:/var/opt/gitlab/backups' # 백업 폴더 추가
+```
