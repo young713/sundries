@@ -1,0 +1,73 @@
+image: docker:latest
+
+#variables:
+#  DOCKER_TLS_CERTDIR: ""
+  
+#services:
+#  - docker:19.03-dind
+
+before_script:
+   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+#  - docker info
+#  - export
+  
+stages:
+  - build
+  - package
+  - deploy
+  
+gradle-build:
+  image: gradle:jdk11
+  stage: build
+  variables:
+    GRADLE_OPTS: "-Dorg.gradle.daemon=false"
+  before_script:
+    - export GRADLE_USER_HOME=`pwd`/.gradle
+  script:
+    - gradle build
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+      - build
+      - .gradle
+  artifacts:
+    paths:
+      - build/libs/*.war
+  tags:
+    - dev-runner
+
+docker-build:
+  stage: package
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID .
+    # - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID
+  tags:
+    - dev-runner
+    
+deploy-staging:
+  stage: deploy
+  script:
+    - ID=$(docker ps -a --filter="name=dev-$CI_PROJECT_NAME" -q) && [[ -n $ID ]] && docker stop $ID && docker rm $ID
+    - docker run --detach --name dev-$CI_PROJECT_NAME --restart always --publish 8081:8080 $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID
+  environment:
+    name: staging
+    url: http://gitlab.young713.refinedev.io:8081
+  only:
+    - master
+  tags:
+    - dev-runner
+    
+deploy-product:
+  stage: deploy
+  script:
+    - ID=$(docker ps -a --filter="name=prod-$CI_PROJECT_NAME" -q) && [[ -n $ID ]] && docker stop $ID && docker rm $ID
+    - docker run --detach --name prod-$CI_PROJECT_NAME --restart always --publish 8080:8080 $CI_REGISTRY_IMAGE:$CI_PIPELINE_ID
+  environment:
+    name: production
+    url: http://gitlab.young713.refinedev.io:8080
+  when: manual
+  only:
+    - master
+  tags:
+    - prd-runner
