@@ -5,3 +5,6 @@ https://www.directcloud.net/ko/pricing.php
 openldap
 http://www.kwangsiklee.com/2017/10/docker%EB%A1%9C-ldap-%EB%9D%84%EC%9B%8C%EB%B3%B4%EA%B8%B0/
 https://osankkk.tistory.com/entry/LDAP-%EC%A0%95%EB%A6%AC
+
+AWS를 이용한 간략 지속적 통합 예제, 무중단 배포 자동화 CI & CD, CodeBuild, CodeDeploy, CodePipeline
+https://roka88.dev/97
